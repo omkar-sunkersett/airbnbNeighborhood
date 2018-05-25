@@ -1,0 +1,237 @@
+<html>
+<head>
+    <title>Visualization for Pythagorean Theorem By Omkar Sunkersett</title>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <style>
+        h1 { font-family: 'Open Sans', sans-serif; font-weight: 800; }
+        h2 { font-family: 'Open Sans', sans-serif; font-weight: 100; text-align: justify; }
+        h3 { font-family: 'Open Sans', sans-serif; font-weight: 100; }
+        p { font-family: 'Open Sans', sans-serif; font-weight: 100; }
+        span { font-family: 'Open Sans', sans-serif; font-weight: 600; }
+        body { padding-top: 25px; padding-left: 25px; padding-right: 25px; padding-bottom: 25px;}
+        .parent { display: flex; }
+        .sliders {padding-top: 100px; padding-left: 50px;}
+        .tb, .th, .tz {opacity: 0.7; transition: opacity .2s;}
+        .tb:hover, .th:hover, .tz:hover {opacity: 1;}
+        .container {padding-left: 300px}
+    </style>
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+</head>
+
+<body>
+<p>
+    <h1>Pythagorean Theorem</h1>
+    <h3>By Omkar Sunkersett</h3>
+    <h2><a href="https://en.wikipedia.org/wiki/Pythagorean_theorem">Pythagorean Theorem</a> states that the area formed by the square whose side is the hypotenuse of a right-angled triangle is equal to the sum of the areas of the squares formed by the base and the height of the same triangle. If the base of a right-angled triangle is denoted by "B" and its height is denoted by "H", then the magnitude of its hypotenuse is equal to the square root of the sum of the squares of the magnitudes of its base and height. The area of the square formed by the base of such a triangle is B*B, whereas the area of the square formed by the height of such a triangle is H*H. According to <a href="https://en.wikipedia.org/wiki/Pythagoras">Pythagorus</a>, the area of the square whose side is the hypotenuse of such a triangle is equal to B*B + H*H.</h2>
+</p>
+
+<div class="parent">
+<div class="sliders">
+<span>Dimensions: </span><br /><br />
+<p><span>Base: </span><span id="ltb">5</span><br /><input type="range" min="1" max="10" value="5" class="tb" id="tb" oninput="initialize()"></p>
+<p><span>Height: </span><span id="lth">5</span><br /><input type="range" min="1" max="10" value="5" class="th" id="th" oninput="initialize()"></p>
+<p><span>Zoom: </span><span id="ltz">3x</span><br /><input type="range" min="10" max="50" value="30" class="tz" id="tz" oninput="initialize()"></p>
+</div>
+<div class="container">
+<svg class="svgContainer" width="1650" height="1600"></svg>
+</div>
+</div>
+
+<script type="text/javascript">
+    function generate() {
+        var svgContainer = d3.select(".svgContainer");
+        var h = parseInt(document.getElementById("th").value);
+        document.getElementById("lth").innerHTML = h.toString();
+        var b = parseInt(document.getElementById("tb").value);
+        document.getElementById("ltb").innerHTML = b.toString();
+        var zoom = parseInt(document.getElementById("tz").value);
+        document.getElementById("ltz").innerHTML = (zoom/10).toString() + "x";
+        var z = Math.sqrt(b*b+h*h);
+        var t = Math.ceil(Math.sqrt(z*z+z*z));
+        var points ="";
+
+        triangle_coordinates = [{"x": zoom+h*zoom, "y": t*zoom-h*zoom}, 
+                                {"x": zoom+h*zoom, "y": t*zoom}, 
+                                {"x": zoom+h*zoom+b*zoom, "y": t*zoom}];
+
+        for(var i=0;i<triangle_coordinates.length;i++) {
+            points += " " + triangle_coordinates[i].x.toString() + "," + triangle_coordinates[i].y.toString();
+        }
+
+        var triangle_polygon_g = svgContainer.append("g");
+
+        triangle_polygon_g.append("polygon")
+                          .attr("points", points)
+                          .style("fill", "gold")
+                          .style("stroke", "black")
+                          .style("stroke-width", 1);
+
+        triangle_polygon_g.append("text")
+        				  .attr("x", zoom+h*zoom+2)
+        				  .attr("y", (t*zoom-h*zoom+t*zoom)/2+10)
+        				  .text(h.toString());
+
+        triangle_polygon_g.append("text")
+        				  .attr("x", (zoom+h*zoom+zoom+h*zoom+b*zoom)/2-10)
+        				  .attr("y", t*zoom-3)
+        				  .text(b.toString());
+
+
+        var hsquare_coordinates = [{"x": zoom+h*zoom, "y": t*zoom-h*zoom},
+        							{"x": zoom, "y": t*zoom-h*zoom},
+        							{"x": zoom, "y": t*zoom},
+        							{"x": zoom+h*zoom, "y": t*zoom}];
+
+        points = "";
+   		for(var i=0;i<hsquare_coordinates.length;i++) {
+   			points += " " + hsquare_coordinates[i].x.toString() + "," + hsquare_coordinates[i].y.toString();
+   		}	
+
+   		var hsquare_polygon_g = svgContainer.append("g");
+
+   		hsquare_polygon_g.append("polygon")
+   						 .attr("points", points)
+   						 .style("fill", "red")
+                         .style("stroke", "black")
+                         .style("stroke-width", 1);
+
+        hsquare_polygon_g.append("text")
+        				 .attr("x", (zoom+zoom+h*zoom)/2-10)
+        				 .attr("y", (t*zoom-h*zoom+t*zoom)/2+10)
+        				 .attr("fill", "white")
+        				 .text((h*h).toString());
+
+
+        var bsquare_coordinates = [{"x": zoom+h*zoom, "y": t*zoom}, 
+        							{"x": zoom+h*zoom, "y": t*zoom+b*zoom},
+                                    {"x": zoom+h*zoom+b*zoom, "y": t*zoom+b*zoom},
+                                    {"x": zoom+h*zoom+b*zoom, "y": t*zoom}];
+
+        points = "";
+   		for(var i=0;i<bsquare_coordinates.length;i++) {
+   			points += " " + bsquare_coordinates[i].x.toString() + "," + bsquare_coordinates[i].y.toString();
+   		}
+
+        var bsquare_polygon_g = svgContainer.append("g");
+        
+        bsquare_polygon_g.append("polygon")
+   						 .attr("points", points)
+   						 .style("fill", "blue")
+                         .style("stroke", "black")
+                         .style("stroke-width", 1);
+
+        bsquare_polygon_g.append("text")
+        				 .attr("x", (zoom+h*zoom+zoom+h*zoom+b*zoom)/2-10)
+        				 .attr("y", (t*zoom+t*zoom+b*zoom)/2+10)
+        				 .attr("fill", "white")
+        				 .text((b*b).toString());
+
+
+        var zsquare_coordinates = [{"x": zoom+h*zoom+b*zoom, "y": t*zoom}, 
+        							{"x": zoom+2*h*zoom+b*zoom, "y": t*zoom-b*zoom},
+                                    {"x": zoom+2*h*zoom, "y": t*zoom-b*zoom-h*zoom},
+                                    {"x": zoom+h*zoom, "y": t*zoom-h*zoom}];
+
+        points = "";
+   		for(var i=0;i<zsquare_coordinates.length;i++) {
+   			points += " " + zsquare_coordinates[i].x.toString() + "," + zsquare_coordinates[i].y.toString();
+   		}
+
+        var zsquare_polygon_g = svgContainer.append("g");
+        
+        zsquare_polygon_g.append("polygon")
+   						 .attr("points", points)
+   						 .style("fill", "none")
+   						 .style("stroke", "black")
+   						 .style("stroke-width", 1);
+
+        if (h == b) {
+            var xdisp = b*zoom*Math.cos(Math.atan(h/b));
+            var ydisp = b*zoom*Math.sin(Math.atan(h/b));
+            var fill1 = "green";
+            var fill2 = "green";
+            var area1 = (b*b).toString();
+            var area2 = Math.round(((z-b)*z+(z-b)*b)).toString();
+        }
+        else if (h > b) {
+            var xdisp = h*zoom*Math.sin(Math.atan(b/h));
+            var ydisp = h*zoom*Math.cos(Math.atan(b/h)); 
+            var fill1 = "red";
+            var fill2 = "blue";
+            var area1 = (h*h).toString();
+            var area2 = Math.round(((z-h)*z+(z-h)*h)).toString();;
+        }
+        else if (h < b) {
+            var xdisp = b*zoom*Math.cos(Math.atan(h/b));
+            var ydisp = b*zoom*Math.sin(Math.atan(h/b));
+            var fill1 = "blue";
+            var fill2 = "red";
+            var area1 = (b*b).toString();
+            var area2 = Math.round(((z-b)*z+(z-b)*b)).toString();;
+        }
+ 
+        var zsquare1_coordinates = [{"x": zoom+h*zoom, "y": t*zoom-h*zoom}, 
+                                    {"x": zoom+h*zoom+xdisp, "y": t*zoom-h*zoom+ydisp}, 
+                                    {"x": zoom+h*zoom+xdisp+ydisp, "y": t*zoom-h*zoom-xdisp+ydisp}, 
+                                    {"x": zoom+h*zoom+ydisp, "y": t*zoom-h*zoom-xdisp}];
+
+        points = "";
+        for(var i=0;i<zsquare1_coordinates.length;i++) {
+            points += " " + zsquare1_coordinates[i].x.toString() + "," + zsquare1_coordinates[i].y.toString();
+        }
+
+        var zsquare1_polygon_g = svgContainer.append("g");
+
+        zsquare1_polygon_g.append("polygon")
+                          .attr("points", points)
+                          .style("fill", fill1);
+
+        zsquare1_polygon_g.append("text")
+        				  .attr("x", (zoom+h*zoom+zoom+h*zoom+xdisp+ydisp)/2-10)
+        				  .attr("y", (t*zoom-h*zoom+t*zoom-h*zoom-xdisp+ydisp)/2+10)
+        				  .attr("fill", "white")
+        				  .text((area1).toString());
+
+        var zsquare2_coordinates = [{"x": zoom+h*zoom+xdisp, "y": t*zoom-h*zoom+ydisp}, 
+                                    {"x": zoom+h*zoom+b*zoom, "y": t*zoom}, 
+                                    {"x": zoom+2*h*zoom+b*zoom, "y": t*zoom-b*zoom}, 
+                                    {"x": zoom+2*h*zoom, "y": t*zoom-b*zoom-h*zoom}, 
+                                    {"x": zoom+h*zoom+ydisp, "y": t*zoom-h*zoom-xdisp}, 
+                                    {"x": zoom+h*zoom+xdisp+ydisp, "y": t*zoom-h*zoom-xdisp+ydisp}];
+
+        points = "";
+        for(var i=0;i<zsquare2_coordinates.length;i++) {
+            points += " " + zsquare2_coordinates[i].x.toString() + "," + zsquare2_coordinates[i].y.toString();
+        }
+
+        var zsquare2_polygon_g = svgContainer.append("g");
+
+        zsquare2_polygon_g.append("polygon")
+                          .attr("points", points)
+                          .style("fill", fill2);
+
+        xup = (zoom+2*h*zoom+b*zoom+zoom+h*zoom+xdisp+ydisp)/2;
+        yup = t*zoom-b*zoom-(Math.sqrt(Math.pow(h*zoom+b*zoom-xdisp-ydisp, 2)+Math.pow(h*zoom-b*zoom-ydisp, 2))/2);
+        xdown = (zoom+2*h*zoom+b*zoom+zoom+h*zoom+xdisp+ydisp)/2;
+        ydown = t*zoom-b*zoom+(Math.sqrt(Math.pow(h*zoom+b*zoom-xdisp-ydisp, 2)+Math.pow(h*zoom-b*zoom-ydisp, 2))/2);
+
+        zsquare2_polygon_g.append("text")
+        				  .attr("x", (xup+xdown)/2-5)
+        				  .attr("y", (yup+ydown)/2+5)
+        				  .attr("fill", "white")
+        				  .text((area2).toString());
+
+    }
+
+    generate();
+
+    function initialize() {
+        d3.select(".svgContainer").selectAll("*").remove();
+        generate();
+
+    }
+
+</script>
+</body>
+
+</html>
